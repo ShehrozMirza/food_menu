@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeonBite — Fast Food</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=DM+Sans:wght@300;400;500;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --panel: #13151c;
+            --card: #1b1e2b;
+            --border: rgba(255, 255, 255, 0.07);
+            --orange: #ff6b2b;
+            --yellow: #ffcc00;
+            --teal: #00e5c3;
+            --pink: #ff3f7a;
+            --white: #f0f0f5;
+            --muted: #6b6e85;
+            --radius: 20px;
+            --glow-o: 0 0 18px rgba(255, 107, 43, .55);
+            --glow-t: 0 0 18px rgba(0, 229, 195, .45);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: .6;
+        }
+
+        /* orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: driftOrb 14s ease-in-out infinite alternate;
+        }
+
+        .orb1 {
+            width: 460px;
+            height: 460px;
+            background: rgba(255, 107, 43, .18);
+            top: -120px;
+            left: -100px;
+        }
+
+        .orb2 {
+            width: 380px;
+            height: 380px;
+            background: rgba(0, 229, 195, .13);
+            bottom: -80px;
+            right: -60px;
+            animation-delay: -5s;
+        }
+
+        .orb3 {
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 63, 122, .11);
+            top: 40%;
+            left: 40%;
+            animation-delay: -9s;
+        }
+
+        @keyframes driftOrb {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 20px) scale(1.08);
+            }
+        }
+
+        /* floating particles */
+        #particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 1.3rem;
+            opacity: 0;
+            animation: floatUp linear infinite;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(.6);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: .35;
+            }
+
+            90% {
+                opacity: .18;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* header */
+        header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 52px 20px 44px;
+            overflow: hidden;
+        }
+
+        .header-line {
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+            border-radius: 2px;
+            margin: 0 auto 22px;
+            animation: expandLine .9s ease .3s both;
+        }
+
+        @keyframes expandLine {
+            from {
+                width: 0;
+                opacity: 0
+            }
+
+            to {
+                width: 120px;
+                opacity: 1
+            }
+        }
+
+        header h1 {
+            font-family: 'Righteous', cursive;
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            animation: headIn .9s cubic-bezier(.16, 1, .3, 1) both;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 43, .4));
+        }
+
+        @keyframes headIn {
+            from {
+                opacity: 0;
+                transform: translateY(-24px) scale(.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        header p {
+            margin-top: 12px;
+            font-size: .95rem;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            animation: fadeUp .8s ease .5s both;
+        }
+
+        /* layout */
+        .layout {
+            position: relative;
+            z-index: 5;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 24px;
+        }
+
+        /* panel */
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: fadeUp .8s cubic-bezier(.16, 1, .3, 1) both;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel:nth-child(1) {
+            animation-delay: .2s;
+        }
+
+        .panel:nth-child(2) {
+            animation-delay: .35s;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* panel header */
+        .panel-head {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-head::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .panel-head.menu-head {
+            background: linear-gradient(135deg, rgba(255, 107, 43, .15), rgba(255, 204, 0, .08));
+        }
+
+        .panel-head.order-head {
+            background: linear-gradient(135deg, rgba(0, 229, 195, .15), rgba(0, 180, 255, .08));
+        }
+
+        .panel-icon {
+            font-size: 1.6rem;
+        }
+
+        .panel-title {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .menu-head .panel-title {
+            color: var(--orange);
+        }
+
+        .order-head .panel-title {
+            color: var(--teal);
+        }
+
+        .panel-badge {
+            margin-left: auto;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 50px;
+            letter-spacing: .5px;
+        }
+
+        .menu-head .panel-badge {
+            background: rgba(255, 107, 43, .18);
+            color: var(--orange);
+            border: 1px solid rgba(255, 107, 43, .3);
+        }
+
+        .order-head .panel-badge {
+            background: rgba(0, 229, 195, .15);
+            color: var(--teal);
+            border: 1px solid rgba(0, 229, 195, .3);
+        }
+
+        /* drop zone */
+        .drop-zone {
+            flex: 1;
+            min-height: 380px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background .25s;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(0, 229, 195, .05);
+        }
+
+        .menu-panel .drop-zone.drag-over {
+            background: rgba(255, 107, 43, .06);
+        }
+
+        /* food card */
+        .food-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            transition: transform .22s cubic-bezier(.34, 1.56, .64, 1), box-shadow .22s ease,
+                border-color .22s ease, opacity .2s ease;
+            animation: cardIn .4s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateX(-18px) scale(.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .food-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .06), transparent);
+            transform: skewX(-20deg);
+            transition: left .5s ease;
+            pointer-events: none;
+        }
+
+        .food-card:hover::before {
+            left: 160%;
+        }
+
+        .food-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(255, 107, 43, .5);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, .4), var(--glow-o);
+        }
+
+        .food-card:active {
+            cursor: grabbing;
+        }
+
+        .food-card.dragging {
+            opacity: .3;
+            transform: scale(.96);
+            box-shadow: none;
+        }
+
+        #order-zone .food-card:hover {
+            border-color: rgba(0, 229, 195, .5);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, .4), var(--glow-t);
+        }
+
+        /* image */
+        .food-img-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .food-img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 12px;
+            background: conic-gradient(var(--orange), var(--yellow), var(--pink), var(--orange));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity .3s;
+            animation: spinRing 3s linear infinite;
+        }
+
+        @keyframes spinRing {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .food-card:hover .food-img-wrap::after {
+            opacity: .7;
+        }
+
+        .food-img-wrap img {
+            width: 68px;
+            height: 68px;
+            border-radius: 11px;
+            object-fit: cover;
+            display: block;
+            background: #1b1e2b;
+        }
+
+        /* info */
+        .food-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .food-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--white);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .food-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .food-price {
+            font-size: .88rem;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .food-cal {
+            font-size: .76rem;
+            color: var(--muted);
+            background: rgba(255, 255, 255, .05);
+            padding: 2px 7px;
+            border-radius: 20px;
+        }
+
+        .drag-handle {
+            color: var(--muted);
+            font-size: 1rem;
+            flex-shrink: 0;
+            opacity: .5;
+            transition: opacity .2s;
+        }
+
+        .food-card:hover .drag-handle {
+            opacity: 1;
+            color: var(--orange);
+        }
+
+        /* remove btn */
+        .rm-btn {
+            flex-shrink: 0;
+            background: rgba(255, 63, 122, .12);
+            border: 1px solid rgba(255, 63, 122, .25);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            color: var(--pink);
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s, transform .15s, box-shadow .15s;
+        }
+
+        .rm-btn:hover {
+            background: var(--pink);
+            color: #fff;
+            transform: scale(1.2) rotate(90deg);
+            box-shadow: 0 0 12px rgba(255, 63, 122, .6);
+        }
+
+        /* empty state */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: .9rem;
+            gap: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, .07);
+            border-radius: 14px;
+            margin: 4px;
+            transition: border-color .25s, background .25s;
+        }
+
+        .empty-state .es-icon {
+            font-size: 2.8rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .drop-zone.drag-over .empty-state {
+            border-color: rgba(0, 229, 195, .4);
+            background: rgba(0, 229, 195, .04);
+        }
+
+        /* max warning */
+        .max-warn {
+            margin: 0 16px 4px;
+            padding: 10px 16px;
+            background: rgba(255, 63, 122, .12);
+            border: 1px solid rgba(255, 63, 122, .3);
+            border-radius: 10px;
+            font-size: .83rem;
+            font-weight: 600;
+            color: var(--pink);
+            text-align: center;
+            display: none;
+            animation: warnPop .35s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        @keyframes warnPop {
+            from {
+                opacity: 0;
+                transform: scale(.9) translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .max-warn.show {
+            display: block;
+        }
+
+        /* order footer */
+        .order-footer {
+            padding: 18px 24px;
+            border-top: 1px solid var(--border);
+            background: rgba(0, 229, 195, .05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-label {
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .footer-total {
+            font-family: 'Righteous', cursive;
+            font-size: 2rem;
+            color: var(--teal);
+            text-shadow: 0 0 20px rgba(0, 229, 195, .5);
+            transition: transform .2s;
+        }
+
+        .footer-total.ping {
+            animation: totalPing .35s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        @keyframes totalPing {
+            from {
+                transform: scale(.85);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .checkout-btn {
+            background: linear-gradient(135deg, var(--teal), #00b4ff);
+            border: none;
+            border-radius: 12px;
+            color: #0b0c10;
+            font-family: 'Righteous', cursive;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            padding: 10px 22px;
+            cursor: pointer;
+            transition: transform .18s, box-shadow .18s, filter .18s;
+            box-shadow: 0 6px 20px rgba(0, 229, 195, .3);
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 10px 30px rgba(0, 229, 195, .5);
+            filter: brightness(1.1);
+        }
+
+        .checkout-btn:active {
+            transform: scale(.97);
+        }
+
+        /* toast */
+        #toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, rgba(0, 229, 195, .2), rgba(0, 180, 255, .15));
+            border: 1px solid rgba(0, 229, 195, .4);
+            color: var(--teal);
+            font-weight: 700;
+            font-size: .9rem;
+            padding: 12px 24px;
+            border-radius: 50px;
+            backdrop-filter: blur(14px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s, transform .3s;
+            z-index: 9998;
+            white-space: nowrap;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* confetti */
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9997;
+        }
+
+        @media(max-width:620px) {
+            .layout {
+                grid-template-columns: 1fr;
+                padding: 0 14px;
+            }
+
+            header h1 {
+                font-size: 2.8rem;
+            }
+
+            header {
+                padding: 36px 14px 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div id="particles"></div>
+    <canvas id="confetti-canvas"></canvas>
+    <div id="toast"></div>
+
+    <header>
+        <div class="header-line"></div>
+        <h1>🔥 NeonBite</h1>
+        <p>Drag items to build your order &mdash; max 5 items</p>
+    </header>
+
+    <div class="layout">
+        <div class="panel menu-panel">
+            <div class="panel-head menu-head">
+                <span class="panel-icon">📋</span>
+                <span class="panel-title">Menu</span>
+                <span class="panel-badge" id="menu-count">5 items</span>
+            </div>
+            <div class="drop-zone" id="menu-zone"></div>
+        </div>
+
+        <div class="panel order-panel">
+            <div class="panel-head order-head">
+                <span class="panel-icon">🛒</span>
+                <span class="panel-title">My Order</span>
+                <span class="panel-badge" id="order-count">0 / 5</span>
+            </div>
+            <div class="max-warn" id="max-warn">⚡ Max 5 items — remove one first!</div>
+            <div class="drop-zone" id="order-zone">
+                <div class="empty-state" id="empty-state">
+                    <span class="es-icon">🎯</span>
+                    <span>Drop your favourites<br>right here</span>
+                </div>
+            </div>
+            <div class="order-footer">
+                <div>
+                    <div class="footer-label">Total</div>
+                    <div class="footer-total" id="total">$0.00</div>
+                </div>
+                <button class="checkout-btn" id="checkout-btn">Order Now →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ITEMS = [
+            {
+                id: 'pizza', name: 'Pizza', price: 9.99, cal: '285 kcal', emoji: '🍕',
+                img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=140&h=140&fit=crop&auto=format'
+            },
+            {
+                id: 'chicken', name: 'Crispy Chicken', price: 7.49, cal: '320 kcal', emoji: '🍗',
+                img: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=140&h=140&fit=crop&auto=format'
+            },
+            {
+                id: 'burger', name: 'Cheese Burger', price: 8.99, cal: '490 kcal', emoji: '🍔',
+                img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=140&h=140&fit=crop&auto=format'
+            },
+            {
+                id: 'fries', name: 'Fries', price: 3.49, cal: '365 kcal', emoji: '🍟',
+                img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=140&h=140&fit=crop&auto=format'
+            },
+            {
+                id: 'soda', name: 'Soda', price: 2.49, cal: '150 kcal', emoji: '🥤',
+                img: 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=140&h=140&fit=crop&auto=format'
+            }
+        ];
+
+        const menuSet = new Set(ITEMS.map(i => i.id));
+        const orderList = [];
+        let dragId = null, dragSrc = null;
+
+        const menuZone = document.getElementById('menu-zone');
+        const orderZone = document.getElementById('order-zone');
+        const emptyState = document.getElementById('empty-state');
+        const menuCount = document.getElementById('menu-count');
+        const orderCount = document.getElementById('order-count');
+        const totalEl = document.getElementById('total');
+        const maxWarn = document.getElementById('max-warn');
+        const toastEl = document.getElementById('toast');
+        let warnTimer, toastTimer;
+
+        const get = id => ITEMS.find(i => i.id === id);
+
+        function showToast(msg) {
+            clearTimeout(toastTimer);
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+        }
+
+        function pingTotal() {
+            totalEl.classList.remove('ping');
+            void totalEl.offsetWidth;
+            totalEl.classList.add('ping');
+        }
+
+        function flashWarn() {
+            clearTimeout(warnTimer);
+            maxWarn.classList.add('show');
+            warnTimer = setTimeout(() => maxWarn.classList.remove('show'), 2600);
+        }
+
+        function makeCard(id, inOrder) {
+            const d = get(id);
+            const el = document.createElement('div');
+            el.className = 'food-card';
+            el.draggable = true;
+            el.dataset.id = id;
+            el.innerHTML = `
+    <span class="drag-handle">⠿</span>
+    <div class="food-img-wrap">
+      <img src="${d.img}" alt="${d.name}" loading="lazy"/>
+    </div>
+    <div class="food-info">
+      <div class="food-name">${d.name}</div>
+      <div class="food-row">
+        <span class="food-price">$${d.price.toFixed(2)}</span>
+        <span class="food-cal">${d.cal}</span>
+      </div>
+    </div>
+    ${inOrder ? '<button class="rm-btn" title="Remove">✕</button>' : ''}
+  `;
+            el.addEventListener('dragstart', onDragStart);
+            el.addEventListener('dragend', onDragEnd);
+            if (inOrder) el.querySelector('.rm-btn').addEventListener('click', () => removeItem(id));
+            return el;
+        }
+
+        function renderMenu() {
+            menuZone.innerHTML = '';
+            let n = 0;
+            ITEMS.forEach(item => {
+                if (menuSet.has(item.id)) {
+                    const c = makeCard(item.id, false);
+                    c.style.animationDelay = `${n * 0.07}s`;
+                    menuZone.appendChild(c); n++;
+                }
+            });
+            menuCount.textContent = `${n} item${n !== 1 ? 's' : ''}`;
+        }
+
+        function renderOrder() {
+            Array.from(orderZone.querySelectorAll('.food-card')).forEach(e => e.remove());
+            orderList.forEach((id, i) => {
+                const c = makeCard(id, true);
+                c.style.animationDelay = `${i * 0.07}s`;
+                orderZone.appendChild(c);
+            });
+            emptyState.style.display = orderList.length ? 'none' : 'flex';
+            orderCount.textContent = `${orderList.length} / 5`;
+            const total = orderList.reduce((s, id) => s + get(id).price, 0);
+            totalEl.textContent = `$${total.toFixed(2)}`;
+            pingTotal();
+        }
+
+        function addItem(id) {
+            if (orderList.length >= 5) { flashWarn(); return false; }
+            orderList.push(id); menuSet.delete(id);
+            renderMenu(); renderOrder();
+            showToast(`${get(id).emoji} ${get(id).name} added!`);
+            return true;
+        }
+
+        function removeItem(id) {
+            const i = orderList.indexOf(id);
+            if (i !== -1) orderList.splice(i, 1);
+            menuSet.add(id);
+            renderMenu(); renderOrder();
+            showToast(`${get(id).emoji} Removed from order`);
+        }
+
+        function onDragStart(e) {
+            dragId = e.currentTarget.dataset.id;
+            dragSrc = menuSet.has(dragId) ? 'menu' : 'order';
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', dragId);
+        }
+
+        function onDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            dragId = dragSrc = null;
+            [menuZone, orderZone].forEach(z => z.classList.remove('drag-over'));
+        }
+
+        function setupZone(zone, handler) {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', e => {
+                if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
+            });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const id = e.dataTransfer.getData('text/plain');
+                if (id) handler(id);
+            });
+        }
+
+        setupZone(orderZone, id => { if (dragSrc === 'menu') addItem(id); });
+        setupZone(menuZone, id => { if (dragSrc === 'order') removeItem(id); });
+
+        /* confetti */
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let pieces = [], rafId = null;
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+
+        const COLORS = ['#ff6b2b', '#ffcc00', '#00e5c3', '#ff3f7a', '#ffffff'];
+
+        function launchConfetti() {
+            pieces = [];
+            for (let i = 0; i < 160; i++) {
+                pieces.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    w: 6 + Math.random() * 8, h: 3 + Math.random() * 5,
+                    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    rotation: Math.random() * 360,
+                    speed: 2 + Math.random() * 4,
+                    spin: 2 + Math.random() * 4,
+                    drift: (Math.random() - .5) * 2
+                });
+            }
+            if (rafId) cancelAnimationFrame(rafId);
+            animConfetti();
+        }
+
+        function animConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color; ctx.globalAlpha = .85;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+                p.y += p.speed; p.x += p.drift; p.rotation += p.spin;
+            });
+            pieces = pieces.filter(p => p.y < canvas.height + 20);
+            if (pieces.length > 0) rafId = requestAnimationFrame(animConfetti);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            if (orderList.length === 0) { showToast('🛒 Your order is empty!'); return; }
+            launchConfetti();
+            const total = orderList.reduce((s, id) => s + get(id).price, 0);
+            showToast(`🎉 Order placed! Total: $${total.toFixed(2)}`);
+        });
+
+        /* floating particles */
+        const EMOJIS = ['🍔', '🍕', '🍟', '🥤', '🍗', '🌟', '✨', '🔥'];
+        const pWrap = document.getElementById('particles');
+
+        function spawnParticle() {
+            const el = document.createElement('div');
+            el.className = 'particle';
+            el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.bottom = '-40px';
+            const dur = 8 + Math.random() * 10;
+            const delay = Math.random() * 4;
+            el.style.animation = `floatUp ${dur}s ${delay}s linear infinite`;
+            el.style.fontSize = (.7 + Math.random() * .8) + 'rem';
+            pWrap.appendChild(el);
+            if (pWrap.children.length > 30) pWrap.removeChild(pWrap.firstChild);
+        }
+
+        for (let i = 0; i < 20; i++) spawnParticle();
+        setInterval(spawnParticle, 1200);
+
+        renderMenu();
+        renderOrder();
+    </script>
+</body>
+
+</html>

@@ -27,13 +27,13 @@ NeonBite is a single-page drag-and-drop menu app where users can build a custom 
 
 ## 🍽️ Menu Items
 
-| Item | Price | Calories |
-|---|---|---|
-| 🍕 Pizza | $9.99 | 285 kcal |
-| 🍗 Crispy Chicken | $7.49 | 320 kcal |
-| 🍔 Cheese Burger | $8.99 | 490 kcal |
-| 🍟 Fries | $3.49 | 365 kcal |
-| 🥤 Soda | $2.49 | 150 kcal |
+| | Item | Price | Calories |
+|---|---|---|---|
+| ![Pizza](https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=80&h=80&fit=crop&auto=format) | 🍕 Pizza | $9.99 | 285 kcal |
+| ![Crispy Chicken](https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=80&h=80&fit=crop&auto=format) | 🍗 Crispy Chicken | $7.49 | 320 kcal |
+| ![Cheese Burger](https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&h=80&fit=crop&auto=format) | 🍔 Cheese Burger | $8.99 | 490 kcal |
+| ![Fries](https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=80&h=80&fit=crop&auto=format) | 🍟 Fries | $3.49 | 365 kcal |
+| ![Soda](https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=80&h=80&fit=crop&auto=format) | 🥤 Soda | $2.49 | 150 kcal |
 
 ---
 
